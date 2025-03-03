@@ -85,7 +85,7 @@ export class GamePartyService {
         }
     }
 
-    private async endGame(): Promise<void> {
+    private async endGame(): Promise<GamePartyResult> {
         if (!this.gameParty) {
             throw new Error('Aucune partie en cours');
         }
