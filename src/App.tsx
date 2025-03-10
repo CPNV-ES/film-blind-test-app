@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 import {AuthProvider} from "./context/AuthContext.tsx";
 import Quiz from "./pages/Quiz.tsx";
+import QuizSummary from "./pages/QuizSummary.tsx";
 
 const App: React.FC = () => {
     return (
@@ -24,6 +25,7 @@ const App: React.FC = () => {
                     <Route element={<ProtectedRoute />}>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/quiz/:quizId" element={<Quiz/>} />
+                        <Route path="/quiz-summary" element={<QuizSummary />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />
