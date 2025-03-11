@@ -36,7 +36,7 @@ const Navbar = () => {
                                     to="/profile"
                                 >
                                     <span className="me-2">👤</span>
-                                    {user.name}
+                                    {user.username}
                                 </Link>
                                 <button className="btn btn-danger" onClick={logout}>
                                     Déconnexion
