@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
-import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -10,6 +9,7 @@ import ProtectedRoute from "./ProtectedRoute.tsx";
 import {AuthProvider} from "./context/AuthContext.tsx";
 import Quiz from "./pages/Quiz.tsx";
 import QuizSummary from "./pages/QuizSummary.tsx";
+import Profile from "./pages/Profile.tsx";
 
 const App: React.FC = () => {
     return (
@@ -17,7 +17,6 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
-                    <Route path="/about" element={<About />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
 
@@ -26,6 +25,7 @@ const App: React.FC = () => {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/quiz/:quizId" element={<Quiz/>} />
                         <Route path="/quiz-summary" element={<QuizSummary />} />
+                        <Route path="/profile" element={<Profile />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />
