@@ -4,6 +4,7 @@ import { ApiService } from "../services/api.service";
 
 interface AuthContextType {
     user: User | null;
+    getUser:() => Promise<void>
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => void;
@@ -15,18 +16,26 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(() => {
-        const savedUser = localStorage.getItem("user");
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
+    const [user, setUser] = useState<User | null>(null)
     const [error, setError] = useState<string | null>(null);
+
+    const getUser = async () => {
+        try {
+            const currentUser = await ApiService.getCurrentUser();
+            if (currentUser) {
+                setUser(currentUser);
+            }
+        } catch (err) {
+            console.error("Erreur lors du chargement de l'utilisateur:", err);
+        }
+    };
 
     const login = async (email: string, password: string) => {
         try {
             setError(null);
-            const response = await ApiService.login({ email, password });
-            setUser(response.user);
-            localStorage.setItem("user", JSON.stringify(response.user));
+            const response = await ApiService.login({ email: email, password: password });
+            setUser({id:0, email: email, username:response.username});
+
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la connexion");
             throw err;
@@ -36,10 +45,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const register = async (name: string, email: string, password: string) => {
         try {
             setError(null);
-            
-            const response = await ApiService.register({ username: name, email, password });
-            setUser(response.user);
-            localStorage.setItem("user", JSON.stringify(response.user));
+
+            const response = await ApiService.register({ username: name, email: email, password: password });
+            setUser({id:0, email: email, username:response.username});
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription");
             throw err;
@@ -49,10 +57,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = async () => {
         try {
             setError(null);
-            
             await ApiService.logout();
             setUser(null);
-            localStorage.removeItem("user");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la déconnexion");
             throw err;
@@ -62,14 +68,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const updateProfile = async (name: string, email: string) => {
         try {
             setError(null);
-            
+
             if (!user) throw new Error("Utilisateur non connecté");
-            
+
             // TODO: Implement API call for profile update when available
             user.username = name;
             user.email = email;
             setUser(user);
-            localStorage.setItem("user", JSON.stringify(user));
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la mise à jour du profil");
             throw err;
@@ -79,12 +84,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const deleteAccount = async () => {
         try {
             setError(null);
-            
+
             if (!user) throw new Error("Utilisateur non connecté");
-            
+
             // TODO: Implement API call for account deletion when available
             setUser(null);
-            localStorage.removeItem("user");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la suppression du compte");
             throw err;
@@ -94,6 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return (
         <AuthContext.Provider value={{
             user,
+            getUser,
             login,
             register,
             logout,

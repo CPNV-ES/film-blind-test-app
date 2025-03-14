@@ -4,6 +4,8 @@ import {useAuth} from "../context/AuthContext";
 const Navbar = () => {
     const {user, logout} = useAuth();
 
+    useAuth().getUser();
+
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container">

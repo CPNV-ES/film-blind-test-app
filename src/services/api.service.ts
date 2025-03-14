@@ -17,25 +17,30 @@ export class ApiService {
     // Auth endpoints
     static async register(data: RegisterRequest): Promise<AuthResponse> {
         const response = await axios.post(`${API_URL}/auth/register`, data);
+        this.token = response.data.accessToken;
+        if (this.token) localStorage.setItem("token", this.token);
         return response.data;
     }
 
     static async login(data: LoginRequest): Promise<AuthResponse> {
         const response = await axios.post(`${API_URL}/auth/login`, data);
-        this.token = response.data.token;
+        this.token = response.data.accessToken;
+        if (this.token) localStorage.setItem("token", this.token);
         return response.data;
     }
 
     static async logout(): Promise<void> {
         await axios.post(`${API_URL}/auth/logout`, {}, { headers: this.getHeaders() });
         this.token = null;
+        localStorage.removeItem("token");
     }
 
     static async getCurrentUser(): Promise<User> {
+        this.token = localStorage.getItem("token")
         const response = await axios.get(`${API_URL}/user`, {
             headers: this.getHeaders()
         });
-        return response.data;
+        return {id: 0, email : response.data.email, username : response.data.username};
     }
 
     static async updateUser(data: Partial<User>): Promise<User> {
@@ -50,6 +55,7 @@ export class ApiService {
             headers: this.getHeaders()
         });
         this.token = null;
+        localStorage.removeItem("token");
     }
 
     static async getRandomQuestion(): Promise<Question> {
