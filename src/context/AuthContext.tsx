@@ -16,7 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null)
+    const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const getUser = async () => {
@@ -33,8 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (email: string, password: string) => {
         try {
             setError(null);
-            const response = await ApiService.login({ email: email, password: password });
-            setUser({id:0, email: email, username:response.username});
+            const response = await ApiService.login({email: email, password: password });
+            setUser(response.user);
 
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la connexion");
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setError(null);
 
             const response = await ApiService.register({ username: name, email: email, password: password });
-            setUser({id:0, email: email, username:response.username});
+            setUser(response.user);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription");
             throw err;
@@ -70,11 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setError(null);
 
             if (!user) throw new Error("Utilisateur non connecté");
-
-            // TODO: Implement API call for profile update when available
             user.username = name;
             user.email = email;
             setUser(user);
+            await ApiService.updateUser(user);
+
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la mise à jour du profil");
             throw err;
@@ -86,9 +86,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setError(null);
 
             if (!user) throw new Error("Utilisateur non connecté");
-
-            // TODO: Implement API call for account deletion when available
             setUser(null);
+            await ApiService.deleteUser();
+
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la suppression du compte");
             throw err;

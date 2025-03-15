@@ -1,10 +1,13 @@
 import {Link} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
+import {useEffect} from "react";
 
 const Navbar = () => {
-    const {user, logout} = useAuth();
+    const {user, logout, getUser} = useAuth();
 
-    useAuth().getUser();
+    useEffect(() => {
+        getUser()
+    }, []);
 
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">

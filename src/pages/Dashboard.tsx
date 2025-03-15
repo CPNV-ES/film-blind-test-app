@@ -77,12 +77,7 @@ const Dashboard = () => {
                 </div>
                 <div className="card-body">
                     <h2 className="h4 mb-4">Classement {activeTab !== "global" ? `- ${activeTab} questions` : ""}</h2>
-                    
-                    {activeTab === "global" ? (
-                        <Scoreboard limit={10} />
-                    ) : (
-                        <Scoreboard category={activeTab as "10" | "20" | "30"} limit={10} />
-                    )}
+                    <Scoreboard />
                 </div>
             </div>
         </div>

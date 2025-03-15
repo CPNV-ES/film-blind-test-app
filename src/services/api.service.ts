@@ -17,14 +17,15 @@ export class ApiService {
     // Auth endpoints
     static async register(data: RegisterRequest): Promise<AuthResponse> {
         const response = await axios.post(`${API_URL}/auth/register`, data);
-        this.token = response.data.accessToken;
+        this.token = response.data.token;
         if (this.token) localStorage.setItem("token", this.token);
+        console.log()
         return response.data;
     }
 
     static async login(data: LoginRequest): Promise<AuthResponse> {
         const response = await axios.post(`${API_URL}/auth/login`, data);
-        this.token = response.data.accessToken;
+        this.token = response.data.token;
         if (this.token) localStorage.setItem("token", this.token);
         return response.data;
     }

@@ -15,26 +15,24 @@ const Quiz = () => {
     const gamePartyServiceRef = useRef(new GamePartyService());
     const totalQuestions = parseInt(quizId || "10", 10);
 
-    // Initialiser le jeu au chargement
     useEffect(() => {
         const initGame = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                
-                if (!user?.id) {
-                    throw new Error("Vous devez être connecté pour jouer");
+
+                if (!user) {
+                    navigate("/login");
+                    return;
                 }
-                
-                // Démarrer une nouvelle partie
+
                 await gamePartyServiceRef.current.startNewGame(user.id, totalQuestions);
-                
-                // Obtenir la première question
+
                 const question = gamePartyServiceRef.current.getCurrentQuestion();
                 if (!question) {
                     throw new Error("Impossible de charger la question");
                 }
-                
+
                 setCurrentQuestion(question);
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Une erreur est survenue");
@@ -43,11 +41,10 @@ const Quiz = () => {
                 setLoading(false);
             }
         };
-        
-        initGame();
-    }, [quizId, user]);
 
-    // Gérer la réponse à une question
+        initGame();
+    }, [navigate, quizId, totalQuestions, user]);
+
     const handleAnswer = async (answer: string) => {
         if (!currentQuestion) return;
         
@@ -112,7 +109,7 @@ const Quiz = () => {
             <QuestionComponent 
                 question={currentQuestion}
                 onAnswer={handleAnswer}
-                onNext={() => {}} // Plus besoin de onNext car handleAnswer gère déjà le passage à la question suivante
+                onNext={() => {}}
             />
         </div>
     );
