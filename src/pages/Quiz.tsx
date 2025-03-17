@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import QuestionComponent from "../components/Question.tsx";
-import { Question } from "../models/Question.ts";
+import { Question, MovieInfo } from "../models/Question.ts";
 import { useState, useEffect, useRef } from "react";
 import { GamePartyService } from "../services/game-party.service.ts";
 import { useAuth } from "../context/AuthContext.tsx";
+import { ApiService } from "../services/api.service.ts";
 
 const Quiz = () => {
     const { quizId } = useParams<{ quizId: string }>();
@@ -14,6 +15,9 @@ const Quiz = () => {
     const { user } = useAuth();
     const gamePartyServiceRef = useRef(new GamePartyService());
     const totalQuestions = parseInt(quizId || "10", 10);
+    const [showMovieInfo, setShowMovieInfo] = useState(false);
+    const [movieInfo, setMovieInfo] = useState<MovieInfo | null>(null);
+    const [isCorrectAnswer, setIsCorrectAnswer] = useState<boolean | null>(null);
 
     useEffect(() => {
         const initGame = async () => {
@@ -54,21 +58,36 @@ const Quiz = () => {
             if (!selectedAnswer) {
                 throw new Error("Réponse non valide");
             }
+
+            // Obtenir les informations du film
+            const questionResponse = await ApiService.getQuestionAnswer(currentQuestion.id);
+            setMovieInfo(questionResponse.movieInfo);
             
             // Soumettre la réponse
-            await gamePartyServiceRef.current.answerCurrentQuestion(selectedAnswer.id);
+            const isCorrect = await gamePartyServiceRef.current.answerCurrentQuestion(selectedAnswer.id);
+            setIsCorrectAnswer(isCorrect);
             
-            // Obtenir la question suivante
-            const nextQuestion = gamePartyServiceRef.current.getCurrentQuestion();
-            if (nextQuestion) {
-                setCurrentQuestion(nextQuestion);
-            } else {
-                // Fin du quiz
-                navigate('/quiz-summary');
-            }
+            // Afficher les informations du film
+            setShowMovieInfo(true);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue");
             console.error(err);
+        }
+    };
+
+    const handleNext = () => {
+        // Réinitialiser l'état
+        setShowMovieInfo(false);
+        setMovieInfo(null);
+        setIsCorrectAnswer(null);
+
+        // Obtenir la question suivante
+        const nextQuestion = gamePartyServiceRef.current.getCurrentQuestion();
+        if (nextQuestion) {
+            setCurrentQuestion(nextQuestion);
+        } else {
+            // Fin du quiz
+            navigate('/quiz-summary');
         }
     };
 
@@ -106,11 +125,64 @@ const Quiz = () => {
 
     return (
         <div className="text-center h-100">
-            <QuestionComponent 
-                question={currentQuestion}
-                onAnswer={handleAnswer}
-                onNext={() => {}}
-            />
+            {showMovieInfo && movieInfo ? (
+                <div className="container my-4">
+                    <div className="card">
+                        <div className="card-header bg-primary text-white">
+                            <h3>{movieInfo.title} ({movieInfo.year})</h3>
+                            {isCorrectAnswer !== null && (
+                                <div className={`alert ${isCorrectAnswer ? 'alert-success' : 'alert-danger'} mt-2`}>
+                                    {isCorrectAnswer ? 'Bonne réponse !' : 'Mauvaise réponse !'}
+                                </div>
+                            )}
+                        </div>
+                        <div className="card-body">
+                            <div className="row">
+                                <div className="col-md-4">
+                                    {movieInfo.poster && (
+                                        <img 
+                                            src={movieInfo.poster} 
+                                            alt={`Affiche de ${movieInfo.title}`} 
+                                            className="img-fluid rounded"
+                                        />
+                                    )}
+                                </div>
+                                <div className="col-md-8 text-start">
+                                    <p className="card-text">{movieInfo.description}</p>
+                                    <p>
+                                        <strong>Année : </strong>{movieInfo.year} <br/>
+                                        <strong>Note :</strong> {movieInfo.rating}/10
+                                    </p>
+                                    {movieInfo.url && (
+                                        <a 
+                                            href={movieInfo.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="btn btn-sm btn-outline-secondary"
+                                        >
+                                            Plus d'informations
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="card-footer">
+                            <button 
+                                className="btn btn-lg btn-primary"
+                                onClick={handleNext}
+                            >
+                                Question suivante
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <QuestionComponent 
+                    question={currentQuestion}
+                    onAnswer={handleAnswer}
+                    onNext={handleNext}
+                />
+            )}
         </div>
     );
 };
