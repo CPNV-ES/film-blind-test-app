@@ -21,6 +21,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const getUser = async () => {
         try {
+            const storedUser = localStorage.getItem("token");
+            if (storedUser) {
+                return;
+            }
             const currentUser = await ApiService.getCurrentUser();
             if (currentUser) {
                 setUser(currentUser);
@@ -29,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error("Erreur lors du chargement de l'utilisateur:", err);
         }
     };
+
 
     const login = async (email: string, password: string) => {
         try {
