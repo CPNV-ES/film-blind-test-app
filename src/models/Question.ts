@@ -7,14 +7,15 @@ export interface Question {
 export interface Answer {
     id: number;
     text: string;
-    isCorrect: boolean;
 }
 
 export interface MovieInfo {
     title: string;
+    description: string;
+    poster: string;
+    rating: number;
+    url: string;
     year: number;
-    director: string;
-    // Autres informations sur le film...
 }
 
 export interface QuestionResponse {
