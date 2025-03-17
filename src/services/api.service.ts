@@ -82,7 +82,7 @@ export class ApiService {
     }
 
     static async submitScore(data: ScoreSubmission): Promise<void> {
-        await axios.post(`${API_URL}/scoreboard/score`, data, {
+        await axios.post(`${API_URL}/score`, data, {
             headers: this.getHeaders(),
         });
     }
