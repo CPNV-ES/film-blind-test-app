@@ -177,7 +177,8 @@ const Quiz = () => {
                     </div>
                 </div>
             ) : (
-                <QuestionComponent 
+                <QuestionComponent
+                    key={currentQuestion.id}
                     question={currentQuestion}
                     onAnswer={handleAnswer}
                     onNext={handleNext}
