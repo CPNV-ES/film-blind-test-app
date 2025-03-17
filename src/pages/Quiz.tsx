@@ -53,21 +53,17 @@ const Quiz = () => {
         if (!currentQuestion) return;
         
         try {
-            // Trouver l'ID de la réponse sélectionnée
             const selectedAnswer = currentQuestion.answers.find(a => a.text === answer);
             if (!selectedAnswer) {
                 throw new Error("Réponse non valide");
             }
 
-            // Obtenir les informations du film
             const questionResponse = await ApiService.getQuestionAnswer(currentQuestion.id);
             setMovieInfo(questionResponse.movieInfo);
             
-            // Soumettre la réponse
             const isCorrect = await gamePartyServiceRef.current.answerCurrentQuestion(selectedAnswer.id);
             setIsCorrectAnswer(isCorrect);
             
-            // Afficher les informations du film
             setShowMovieInfo(true);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Une erreur est survenue");
@@ -75,19 +71,21 @@ const Quiz = () => {
         }
     };
 
-    const handleNext = () => {
-        // Réinitialiser l'état
+    const handleNext = async () => {
         setShowMovieInfo(false);
         setMovieInfo(null);
         setIsCorrectAnswer(null);
 
-        // Obtenir la question suivante
         const nextQuestion = gamePartyServiceRef.current.getCurrentQuestion();
         if (nextQuestion) {
             setCurrentQuestion(nextQuestion);
         } else {
-            // Fin du quiz
-            navigate('/quiz-summary');
+            const score = await gamePartyServiceRef.current.getScore()
+            navigate('/quiz-summary', {
+                state: {
+                    score: score
+                }
+            });
         }
     };
 
