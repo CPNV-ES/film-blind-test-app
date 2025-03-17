@@ -1,9 +1,10 @@
-import {createContext, useContext, useState, ReactNode} from "react";
+import {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import { User } from "../models/Auth";
 import { ApiService } from "../services/api.service";
 
 interface AuthContextType {
     user: User | null;
+    isLoading: boolean;
     getUser:() => Promise<void>
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
@@ -18,19 +19,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        getUser()
+    }, []);
 
     const getUser = async () => {
         try {
-            const storedUser = localStorage.getItem("token");
-            if (storedUser) {
-                return;
-            }
+            setIsLoading(true);
             const currentUser = await ApiService.getCurrentUser();
             if (currentUser) {
                 setUser(currentUser);
+            } else {
+                setUser(null);
             }
         } catch (err) {
             console.error("Erreur lors du chargement de l'utilisateur:", err);
+            setUser(null);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -103,6 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return (
         <AuthContext.Provider value={{
             user,
+            isLoading,
             getUser,
             login,
             register,
