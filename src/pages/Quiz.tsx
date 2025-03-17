@@ -47,17 +47,17 @@ const Quiz = () => {
 
     const handleAnswer = async (answer: string) => {
         if (!currentQuestion) return;
-        
+
         try {
             // Trouver l'ID de la réponse sélectionnée
             const selectedAnswer = currentQuestion.answers.find(a => a.text === answer);
             if (!selectedAnswer) {
                 throw new Error("Réponse non valide");
             }
-            
+
             // Soumettre la réponse
             await gamePartyServiceRef.current.answerCurrentQuestion(selectedAnswer.id);
-            
+
             // Obtenir la question suivante
             const nextQuestion = gamePartyServiceRef.current.getCurrentQuestion();
             if (nextQuestion) {
@@ -89,7 +89,7 @@ const Quiz = () => {
                 <p>{error}</p>
                 <hr />
                 <div className="d-flex justify-content-end">
-                    <button 
+                    <button
                         className="btn btn-outline-danger"
                         onClick={() => navigate('/')}
                     >
@@ -106,10 +106,11 @@ const Quiz = () => {
 
     return (
         <div className="text-center h-100">
-            <QuestionComponent 
+            <QuestionComponent
+                key={currentQuestion.id}
                 question={currentQuestion}
                 onAnswer={handleAnswer}
-                onNext={() => {}}
+                onNext={() => { }}
             />
         </div>
     );
