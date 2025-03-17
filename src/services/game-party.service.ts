@@ -5,6 +5,7 @@ import { Question } from '../models/Question';
 export class GamePartyService {
     private gameParty: GameParty | null = null;
     private answers: GamePartyAnswer[] = [];
+    private lastScore: number = 0;
 
     async startNewGame(userId: number, questionCount: number): Promise<void> {
         const questions = await this.getRandomQuestions(questionCount);
@@ -103,8 +104,12 @@ export class GamePartyService {
             score: result.totalScore,
         });
 
+        this.lastScore = result.totalScore;
         this.gameParty = null;
-
         return result;
+    }
+    
+    public getScore(): number {
+        return this.lastScore;
     }
 } 

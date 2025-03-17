@@ -75,7 +75,7 @@ export class ApiService {
 
     // Score endpoints
     static async getLeaderboard(limit: number): Promise<Score[]> {
-        const response = await axios.get(`${API_URL}/scores?limit=${limit}`, {
+        const response = await axios.get(`${API_URL}/score?limit=${limit}`, {
             headers: this.getHeaders()
         });
         return response.data;
