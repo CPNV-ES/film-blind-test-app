@@ -17,9 +17,8 @@ export class ApiService {
     // Auth endpoints
     static async register(data: RegisterRequest): Promise<AuthResponse> {
         const response = await axios.post(`${API_URL}/auth/register`, data);
-        this.token = response.data.token;
+        this.token = response.data.accessToken;
         if (this.token) localStorage.setItem("token", this.token);
-        console.log()
         return response.data;
     }
 
